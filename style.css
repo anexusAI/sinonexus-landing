@@ -1,0 +1,36 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e6f5f3;
+    color: #222;
+}
+
+header {
+    background-color: #009688;
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.logo {
+    max-height: 80px;
+    margin-bottom: 15px;
+}
+
+.intro, .form-section, .chat-section {
+    padding: 30px 20px;
+    text-align: center;
+}
+
+iframe {
+    margin-top: 20px;
+}
+
+footer {
+    background-color: #004d40;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
