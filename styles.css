@@ -1,50 +1,60 @@
 
 body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    background: white;
-    color: #000;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #E6F5F1;
+  color: #003E3E;
 }
 
 header {
-    background: #b30000;
-    color: white;
-    text-align: center;
-    padding: 40px 20px;
+  background-color: #00B7A3;
+  color: white;
+  text-align: center;
+  padding: 2rem 1rem;
 }
 
-.cta-button {
-    display: inline-block;
-    margin: 10px;
-    padding: 12px 24px;
-    background: gold;
-    color: black;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
+.logo {
+  height: 80px;
+  margin-bottom: 1rem;
 }
 
-.cta-button.secondary {
-    background: white;
-    border: 2px solid gold;
+main {
+  padding: 2rem;
 }
 
-.features, .segments {
-    padding: 30px 20px;
+.intro, .form-section, .chatbot-section {
+  margin-bottom: 2rem;
 }
 
-.features h2, .segments h2 {
-    color: #b30000;
+.audience-types {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 2rem 0;
 }
 
-.segment {
-    margin-top: 20px;
+.card {
+  flex: 1 1 300px;
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.chatbot-section button {
+  background: #00B7A3;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 footer {
-    background: #f4f4f4;
-    text-align: center;
-    padding: 20px;
-    font-size: 0.9em;
-    color: #777;
+  background-color: #003E3E;
+  color: white;
+  text-align: center;
+  padding: 1rem;
 }
