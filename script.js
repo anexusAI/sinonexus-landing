@@ -42,7 +42,9 @@ async function checkEligibility(formData) {
 }
 
 function displayResult(result) {
-    // Create or update result display
+    // MVP: Hide score breakdown from applicants
+    // Backend still sends full data, but we only display summary
+    
     let resultDiv = document.getElementById('assessment-result');
     
     if (!resultDiv) {
@@ -51,47 +53,74 @@ function displayResult(result) {
         document.body.appendChild(resultDiv);
     }
     
+    // Color based on probability
+    let tierColor, tierBg;
+    if (result.probability >= 70) {
+        tierBg = '#dcfce7';
+        tierColor = '#166534';
+    } else if (result.probability >= 50) {
+        tierBg = '#fef3c7';
+        tierColor = '#92400e';
+    } else {
+        tierBg = '#fee2e2';
+        tierColor = '#dc2626';
+    }
+    
     resultDiv.innerHTML = `
-        <div style="max-width: 600px; margin: 20px auto; padding: 20px; background: #f3f4f6; border-radius: 12px; font-family: Arial, sans-serif;">
-            <h2 style="text-align: center; color: #111827; margin-bottom: 10px;">
-                Approval Probability: ${result.probability}%
+        <div style="max-width: 600px; margin: 30px auto; padding: 40px 30px; background: #ffffff; border-radius: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            
+            <!-- Header -->
+            <h2 style="color: #374151; margin-bottom: 8px; font-size: 16px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
+                Your Approval Probability
             </h2>
             
-            <div style="text-align: center; margin-bottom: 20px;">
-                <span style="display: inline-block; padding: 8px 16px; background: ${result.probability >= 70 ? '#dcfce7' : result.probability >= 50 ? '#fef3c7' : '#fee2e2'}; color: ${result.probability >= 70 ? '#166534' : result.probability >= 50 ? '#92400e' : '#dc2626'}; border-radius: 20px; font-weight: bold; text-transform: uppercase;">
-                    ${result.tier}
+            <!-- Big Percentage -->
+            <div style="font-size: 80px; font-weight: 800; color: #c41e3a; margin: 20px 0; line-height: 1;">
+                ${result.probability}<span style="font-size: 40px; font-weight: 600;">%</span>
+            </div>
+            
+            <!-- Tier Badge -->
+            <div style="margin-bottom: 30px;">
+                <span style="display: inline-block; padding: 12px 28px; background: ${tierBg}; color: ${tierColor}; border-radius: 25px; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px;">
+                    ${result.tier} Probability
                 </span>
             </div>
             
-            <p style="color: #374151; margin-bottom: 20px; text-align: center;">
+            <!-- Recommendation -->
+            <p style="color: #1f2937; margin-bottom: 30px; font-size: 18px; line-height: 1.6; font-weight: 500;">
                 ${result.recommendation}
             </p>
             
-            <h3 style="color: #111827; margin-bottom: 10px;">Score Breakdown:</h3>
-            <div style="margin-bottom: 20px;">
-                ${result.factors.map(f => `
-                    <div style="display: flex; justify-content: space-between; padding: 10px; background: white; margin-bottom: 8px; border-radius: 6px;">
-                        <span>${f.factor}</span>
-                        <span style="font-weight: bold;">${f.points}/${f.max}</span>
-                    </div>
-                `).join('')}
-            </div>
-            
-            ${result.warnings.length > 0 ? `
-                <div style="padding: 15px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; margin-bottom: 15px;">
-                    <h4 style="color: #92400e; margin-bottom: 10px;">⚠️ Important Notes:</h4>
-                    ${result.warnings.map(w => `<p style="color: #92400e; margin: 5px 0;">${w}</p>`).join('')}
+            <!-- Warnings (if any) -->
+            ${result.warnings && result.warnings.length > 0 ? `
+                <div style="padding: 20px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 8px; margin-bottom: 30px; text-align: left;">
+                    <h4 style="color: #92400e; margin-bottom: 12px; font-size: 14px; font-weight: 600;">⚠️ Important Notes</h4>
+                    ${result.warnings.map(w => `<p style="color: #92400e; margin: 8px 0; font-size: 14px; line-height: 1.5;">• ${w}</p>`).join('')}
                 </div>
             ` : ''}
             
-            <p style="font-size: 12px; color: #6b7280; text-align: center;">
+            <!-- Disclaimer -->
+            <p style="font-size: 12px; color: #9ca3af; margin: 25px 0; line-height: 1.5;">
                 ${result.disclaimer}
             </p>
+            
+            <!-- CTA for Premium Consultation -->
+            <div style="margin-top: 35px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
+                <p style="color: #6b7280; margin-bottom: 16px; font-size: 15px;">
+                    Want personalized guidance to improve your chances?
+                </p>
+                <a href="premium.html" style="display: inline-block; padding: 16px 36px; background: #111827; color: white; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px; transition: all 0.2s;">
+                    Book Expert Consultation
+                </a>
+                <p style="color: #9ca3af; margin-top: 12px; font-size: 13px;">
+                    Get detailed analysis and personalized strategy
+                </p>
+            </div>
         </div>
     `;
     
-    // Scroll to result
-    resultDiv.scrollIntoView({ behavior: 'smooth' });
+    // Smooth scroll to result
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // Hook into your existing form
