@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,14 +33,36 @@
             </div>
         </section>
 
-        <section class="cta">
-            <a href="premium.html" class="cta-button">Request Premium Service</a>
+        <!-- App Download CTAs Section -->
+        <section class="app-download">
+            <h2>Get the Full Experience</h2>
+            <p>Download our mobile app for the complete AI-powered eligibility assessment and personalized guidance.</p>
+            
+            <div class="download-buttons">
+                <!-- Google Play Store Badge -->
+                <a href="https://play.google.com/store/apps/details?id=com.sinonexus.app" 
+                   class="store-badge google-play" 
+                   target="_blank" 
+                   rel="noopener noreferrer">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
+                         alt="Get it on Google Play" 
+                         style="height: 60px;">
+                </a>
+                
+                <!-- App Store Badge (Coming Soon) -->
+                <div class="store-badge app-store coming-soon">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" 
+                         alt="Download on the App Store" 
+                         style="height: 60px; opacity: 0.5;">
+                    <span class="coming-soon-label">Coming Soon</span>
+                </div>
+            </div>
+            
+            <p class="download-note">📱 Our full AI eligibility check is only available on the mobile app. Chat with Nexi below to learn more!</p>
         </section>
 
-        <section class="chatbot">
-            <h3>Try Our AI Chat Assistant</h3>
-            <p>Ask our AI for a quick eligibility estimate or compliance support. Launching soon!</p>
-            <button disabled class="disabled-chat">Chatbot Coming Soon</button>
+        <section class="cta">
+            <a href="premium.html" class="cta-button">Request Premium Service</a>
         </section>
     </main>
 
@@ -49,83 +70,36 @@
         <p>© 2025 SinoNexus, an aNexus company</p>
     </footer>
 
-<!-- Add this inside <body> -->
-<section style="max-width: 600px; margin: 40px auto; padding: 20px;">
-    <h2>Check Your Eligibility</h2>
-    <form id="eligibility-form">
-        <div style="margin-bottom: 15px;">
-            <label>Pass Type *</label><br>
-            <select name="passType" required style="width: 100%; padding: 10px;">
-                <option value="EP">Employment Pass (EP)</option>
-                <option value="S_Pass">S Pass</option>
-                <option value="Student">Student's Pass</option>
-                <option value="LTVP">Long-Term Visit Pass</option>
-                <option value="PR">Permanent Residence</option>
-            </select>
+    <!-- Chat Widget -->
+    <div id="chat-widget" class="chat-widget">
+        <div class="chat-header" onclick="toggleChat()">
+            <span class="chat-title">💬 Chat with Nexi</span>
+            <span class="chat-toggle" id="chat-toggle">−</span>
         </div>
-        
-        <div style="margin-bottom: 15px;">
-            <label>Nationality *</label><br>
-            <select name="nationality" required style="width: 100%; padding: 10px;">
-                <option value="">Select...</option>
-                <option value="CN">China</option>
-                <option value="IN">India</option>
-                <option value="MY">Malaysia</option>
-                <option value="US">United States</option>
-                <option value="UK">United Kingdom</option>
-                <option value="AU">Australia</option>
-                <option value="OTHER">Other</option>
-            </select>
+        <div class="chat-body" id="chat-body">
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        Hi! I'm Nexi! 👋 Welcome to SinoNexus! How can I help you today?
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" 
+                       id="chat-input" 
+                       class="chat-input" 
+                       placeholder="Type your message..." 
+                       onkeypress="handleKeyPress(event)">
+                <button class="chat-send" onclick="sendMessage()">Send</button>
+            </div>
         </div>
-        
-        <div style="margin-bottom: 15px;">
-            <label>Age *</label><br>
-            <input type="number" name="age" min="18" max="65" required style="width: 100%; padding: 10px;">
-        </div>
-        
-        <div style="margin-bottom: 15px;">
-            <label>Monthly Salary (SGD)</label><br>
-            <input type="number" name="salary" placeholder="6000" style="width: 100%; padding: 10px;">
-        </div>
-        
-        <div style="margin-bottom: 15px;">
-            <label>Industry</label><br>
-            <select name="sector" style="width: 100%; padding: 10px;">
-                <option value="tech">Technology</option>
-                <option value="finance">Finance</option>
-                <option value="healthcare">Healthcare</option>
-                <option value="manufacturing">Manufacturing</option>
-                <option value="others">Others</option>
-            </select>
-        </div>
-        
-        <div style="margin-bottom: 15px;">
-            <label>
-                <input type="checkbox" name="isFinance" value="true">
-                Financial Services Role?
-            </label>
-        </div>
-        
-        <button type="submit" style="width: 100%; padding: 15px; background: #c41e3a; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
-            Check Eligibility
-        </button>
-    </form>
-</section>
+    </div>
 
-<!-- Make sure script.js is included -->
-<script src="script.js"></script>
+    <!-- Chat Widget Toggle Button (shown when chat is minimized) -->
+    <div id="chat-fab" class="chat-fab" onclick="toggleChat()" style="display: none;">
+        <span>💬</span>
+    </div>
 
-<style>
-    #assessment-result {
-        animation: fadeIn 0.5s ease-in;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-</body>
-
+    <script src="script.js"></script>
 </body>
 </html>
