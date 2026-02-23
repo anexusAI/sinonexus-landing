@@ -1,154 +1,236 @@
+// SinoNexus Frontend JavaScript
+const API_URL = 'https://sinonexus-api.onrender.com';
 
-// Future chatbot API logic will be inserted here.
-console.log("Chatbot module placeholder.");
-// SinoNexus API Integration
-const API_URL = 'https://sinonexus-api.onrender.com'; // Your Render URL
+// Chat Widget State
+let chatSessionId = null;
+let chatUserType = 'unknown';
+let isChatOpen = true;
 
-async function checkEligibility(formData) {
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initChat();
+});
+
+// ====================
+// CHAT WIDGET FUNCTIONS
+// ====================
+
+function initChat() {
+    // Generate session ID
+    chatSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    // Focus input when chat opens
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput && isChatOpen) {
+        chatInput.focus();
+    }
+}
+
+function toggleChat() {
+    const chatWidget = document.getElementById('chat-widget');
+    const chatFab = document.getElementById('chat-fab');
+    
+    isChatOpen = !isChatOpen;
+    
+    if (isChatOpen) {
+        chatWidget.classList.remove('minimized');
+        chatWidget.style.display = 'block';
+        chatFab.style.display = 'none';
+        setTimeout(() => document.getElementById('chat-input')?.focus(), 100);
+    } else {
+        chatWidget.classList.add('minimized');
+        setTimeout(() => {
+            chatWidget.style.display = 'none';
+            chatFab.style.display = 'flex';
+        }, 300);
+    }
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Clear input
+    input.value = '';
+    
+    // Add user message to chat
+    addMessage(message, 'user');
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
     try {
-        const response = await fetch(`${API_URL}/api/assess`, {
+        // Call API
+        const response = await fetch(`${API_URL}/api/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                passType: formData.passType || 'EP',
-                nationality: formData.nationality,
-                age: parseInt(formData.age),
-                monthlySalary: parseInt(formData.salary) || 0,
-                sector: formData.sector || 'others',
-                isFinance: formData.isFinance === 'true' || false,
-                education: formData.education || 'degree',
-                universityTier: formData.universityTier || 'degree',
-                district: formData.district || 'default',
-                yearsInSingapore: parseInt(formData.yearsInSG) || 0,
-                familyTies: formData.familyTies || 'none',
-                compassScore: formData.compassScore ? parseInt(formData.compassScore) : undefined,
-                jobTitle: 'other'
+                message: message,
+                sessionId: chatSessionId,
+                userType: chatUserType
             })
         });
-
-        if (!response.ok) {
-            throw new Error('API request failed');
+        
+        const data = await response.json();
+        
+        // Remove typing indicator
+        removeTypingIndicator();
+        
+        // Update session info
+        if (data.sessionId) chatSessionId = data.sessionId;
+        if (data.userType) chatUserType = data.userType;
+        
+        // Add bot response
+        addMessage(data.reply, 'bot');
+        
+        // Show lead form if needed
+        if (data.showLeadForm && chatUserType === 'corporate') {
+            showLeadForm();
         }
-
-        const result = await response.json();
-        displayResult(result);
         
     } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to get assessment. Please try again.');
+        console.error('Chat error:', error);
+        removeTypingIndicator();
+        addMessage("Oops! I'm having a moment 😅 Please try again or download our app for the best experience!", 'bot');
     }
 }
 
-function displayResult(result) {
-    // MVP: Hide score breakdown from applicants
-    // Backend still sends full data, but we only display summary
+function addMessage(text, sender) {
+    const messagesContainer = document.getElementById('chat-messages');
     
-    let resultDiv = document.getElementById('assessment-result');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
     
-    if (!resultDiv) {
-        resultDiv = document.createElement('div');
-        resultDiv.id = 'assessment-result';
-        document.body.appendChild(resultDiv);
-    }
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = text;
     
-    // Color based on probability
-    let tierColor, tierBg;
-    if (result.probability >= 70) {
-        tierBg = '#dcfce7';
-        tierColor = '#166534';
-    } else if (result.probability >= 50) {
-        tierBg = '#fef3c7';
-        tierColor = '#92400e';
-    } else {
-        tierBg = '#fee2e2';
-        tierColor = '#dc2626';
-    }
+    messageDiv.appendChild(contentDiv);
+    messagesContainer.appendChild(messageDiv);
     
-    resultDiv.innerHTML = `
-        <div style="max-width: 600px; margin: 30px auto; padding: 40px 30px; background: #ffffff; border-radius: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            
-            <!-- Header -->
-            <h2 style="color: #374151; margin-bottom: 8px; font-size: 16px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
-                Your Approval Probability
-            </h2>
-            
-            <!-- Big Percentage -->
-            <div style="font-size: 80px; font-weight: 800; color: #c41e3a; margin: 20px 0; line-height: 1;">
-                ${result.probability}<span style="font-size: 40px; font-weight: 600;">%</span>
-            </div>
-            
-            <!-- Tier Badge -->
-            <div style="margin-bottom: 30px;">
-                <span style="display: inline-block; padding: 12px 28px; background: ${tierBg}; color: ${tierColor}; border-radius: 25px; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px;">
-                    ${result.tier} Probability
-                </span>
-            </div>
-            
-            <!-- Recommendation -->
-            <p style="color: #1f2937; margin-bottom: 30px; font-size: 18px; line-height: 1.6; font-weight: 500;">
-                ${result.recommendation}
-            </p>
-            
-            <!-- Warnings (if any) -->
-            ${result.warnings && result.warnings.length > 0 ? `
-                <div style="padding: 20px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 8px; margin-bottom: 30px; text-align: left;">
-                    <h4 style="color: #92400e; margin-bottom: 12px; font-size: 14px; font-weight: 600;">⚠️ Important Notes</h4>
-                    ${result.warnings.map(w => `<p style="color: #92400e; margin: 8px 0; font-size: 14px; line-height: 1.5;">• ${w}</p>`).join('')}
-                </div>
-            ` : ''}
-            
-            <!-- Disclaimer -->
-            <p style="font-size: 12px; color: #9ca3af; margin: 25px 0; line-height: 1.5;">
-                ${result.disclaimer}
-            </p>
-            
-            <!-- CTA for Premium Consultation -->
-            <div style="margin-top: 35px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
-                <p style="color: #6b7280; margin-bottom: 16px; font-size: 15px;">
-                    Want personalized guidance to improve your chances?
-                </p>
-                <a href="premium.html" style="display: inline-block; padding: 16px 36px; background: #111827; color: white; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px; transition: all 0.2s;">
-                    Book Expert Consultation
-                </a>
-                <p style="color: #9ca3af; margin-top: 12px; font-size: 13px;">
-                    Get detailed analysis and personalized strategy
-                </p>
-            </div>
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chat-messages');
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot-message typing';
+    typingDiv.id = 'typing-indicator';
+    
+    typingDiv.innerHTML = `
+        <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
     `;
     
-    // Smooth scroll to result
-    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Hook into your existing form
-// If you have a form with id="eligibility-form", use this:
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('eligibility-form') || document.querySelector('form');
-    
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Collect form data
-            const formData = {
-                passType: form.querySelector('[name="passType"]')?.value || 'EP',
-                nationality: form.querySelector('[name="nationality"]')?.value,
-                age: form.querySelector('[name="age"]')?.value,
-                salary: form.querySelector('[name="salary"]')?.value,
-                sector: form.querySelector('[name="sector"]')?.value,
-                isFinance: form.querySelector('[name="isFinance"]')?.value,
-                education: form.querySelector('[name="education"]')?.value,
-                universityTier: form.querySelector('[name="universityTier"]')?.value,
-                district: form.querySelector('[name="district"]')?.value,
-                yearsInSG: form.querySelector('[name="yearsInSG"]')?.value,
-                familyTies: form.querySelector('[name="familyTies"]')?.value,
-                compassScore: form.querySelector('[name="compassScore"]')?.value
-            };
-            
-            checkEligibility(formData);
-        });
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
     }
-});
+}
+
+// ====================
+// CORPORATE LEAD FORM
+// ====================
+
+function showLeadForm() {
+    const messagesContainer = document.getElementById('chat-messages');
+    
+    const formDiv = document.createElement('div');
+    formDiv.className = 'message bot-message';
+    formDiv.innerHTML = `
+        <div class="lead-form">
+            <h4>🎯 Let's Connect You With Our Corporate Team</h4>
+            <input type="text" id="lead-company" placeholder="Company Name *" required>
+            <input type="text" id="lead-contact" placeholder="Contact Name *" required>
+            <input type="email" id="lead-email" placeholder="Email *" required>
+            <input type="tel" id="lead-phone" placeholder="Phone">
+            <select id="lead-size">
+                <option value="">Company Size</option>
+                <option value="1-10">1-10 employees</option>
+                <option value="11-50">11-50 employees</option>
+                <option value="51-200">51-200 employees</option>
+                <option value="200+">200+ employees</option>
+            </select>
+            <select id="lead-service">
+                <option value="">Service Needed</option>
+                <option value="company_setup">Company Setup</option>
+                <option value="hr_consulting">HR/Immigration Consulting</option>
+                <option value="accounting">Accounting & Payroll</option>
+                <option value="full_package">Full Corporate Package</option>
+            </select>
+            <textarea id="lead-message" placeholder="Tell us about your needs..." rows="3"></textarea>
+            <button onclick="submitLeadForm()">Submit Request</button>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(formDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+async function submitLeadForm() {
+    const company = document.getElementById('lead-company').value;
+    const contact = document.getElementById('lead-contact').value;
+    const email = document.getElementById('lead-email').value;
+    const phone = document.getElementById('lead-phone').value;
+    const size = document.getElementById('lead-size').value;
+    const service = document.getElementById('lead-service').value;
+    const message = document.getElementById('lead-message').value;
+    
+    if (!company || !contact || !email) {
+        alert('Please fill in all required fields (Company Name, Contact Name, Email)');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/api/corporate-lead`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                companyName: company,
+                contactName: contact,
+                email: email,
+                phone: phone,
+                companySize: size,
+                serviceNeeded: service,
+                message: message,
+                sessionId: chatSessionId
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Remove form and show confirmation
+        const formDiv = document.querySelector('.lead-form').closest('.message');
+        formDiv.innerHTML = `
+            <div class="message-content" style="background: #dcfce7; color: #166534;">
+                ✅ ${data.message}
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Lead submission error:', error);
+        alert('Failed to submit. Please try again or email us directly.');
+    }
+}
