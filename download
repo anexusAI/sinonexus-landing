@@ -1,0 +1,5 @@
+/// <reference types="vite/client" />
+
+// In production (Vercel), this should point to your Render backend URL.
+// In development, it defaults to the same host.
+export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
